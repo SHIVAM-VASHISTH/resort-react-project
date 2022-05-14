@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import logo from "../images/logo.svg";
-import { FaAlignRight } from "react-icons/fa";
+import { FaAlignRight, FaUserPlus, FaUserMinus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
-export default class Navbar extends Component {
+class Navbar extends Component {
   state = {
     isOpen: false,
   };
@@ -13,6 +14,9 @@ export default class Navbar extends Component {
   };
 
   render() {
+    const { user, isAuthenticated, logout } = this.props.auth0;
+    console.log("here", this.props.auth0);
+
     return (
       <>
         <nav className="navbar">
@@ -38,6 +42,31 @@ export default class Navbar extends Component {
               <li>
                 <Link to="/rooms">Rooms</Link>
               </li>
+              <li>
+                {user ? (
+                  <Link
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem("user");
+                      logout({ returnTo: window.location.origin });
+                    }}
+                  >
+                    Logout <FaUserMinus />
+                  </Link>
+                ) : (
+                  <Link
+                    type="button"
+                    onClick={this.props.auth0.loginWithRedirect}
+                  >
+                    Login <FaUserPlus />
+                  </Link>
+                )}
+              </li>
+              {user && (
+                <li>
+                  <Link>Hello, {user.name}</Link>
+                </li>
+              )}
             </ul>
           </div>
         </nav>
@@ -45,3 +74,5 @@ export default class Navbar extends Component {
     );
   }
 }
+
+export default withAuth0(Navbar);

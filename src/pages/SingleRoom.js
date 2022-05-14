@@ -88,6 +88,13 @@ export default class SingleRoom extends Component {
               return <li key={index}>- {item}</li>;
             })}
           </ul>
+          <Link
+            style={{ float: "right" }}
+            to={`/rooms/${this.state.slug}/book`}
+            className="btn-primary"
+          >
+            Book this Room
+          </Link>
         </section>
       </>
     );
