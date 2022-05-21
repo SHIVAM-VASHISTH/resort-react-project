@@ -209,7 +209,13 @@ class Booking extends Component {
                     Pay at Hotel
                   </button>
                 )}
-                <PaytmButton price={price} />
+                <PaytmButton
+                  callSendEmail={() => {
+                    this.setState({ paidOnline: true });
+                    this.sendEmail(room);
+                  }}
+                  price={price}
+                />
                 <img
                   style={{ width: "75%" }}
                   className="mt-4"

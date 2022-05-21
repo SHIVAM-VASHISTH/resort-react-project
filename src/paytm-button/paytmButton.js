@@ -133,6 +133,7 @@ export default class PaytmButton extends Component {
         transactionStatus: function transactionStatus(paymentStatus) {
           console.log("paymentStatus => ", paymentStatus);
           that.setState({ loading: false });
+          that.props.callSendEmail();
         },
         notifyMerchant: function notifyMerchant(eventName, data) {
           console.log("Closed");
