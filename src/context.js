@@ -7,7 +7,7 @@ Client.getEntries().then((response) => console.log(response.items));
 const RoomContext = React.createContext();
 
 class RoomProvider extends Component {
-  state = {
+  state = JSON.parse(window.localStorage.getItem("confirmation")) || {
     rooms: [],
     sortedRooms: [],
     featuredRooms: [],
@@ -21,6 +21,20 @@ class RoomProvider extends Component {
     maxSize: 0,
     breakfast: false,
     pets: false,
+    bookedDetails: {
+      bookingId: "",
+      checkIn: "",
+      checkOut: "",
+      total: "",
+      bookingStatus: "",
+    },
+    paymentDetails: {
+      paymentId: "",
+      date: "",
+      paymentMethod: "",
+      total: "",
+      paymentStatus: "",
+    },
   };
 
   componentDidMount() {
@@ -104,6 +118,24 @@ class RoomProvider extends Component {
     this.setState({ sortedRooms: tempRooms });
   };
 
+  changeContextState = (key, value) => {
+    const list = { ...this.state };
+
+    if (key === "bookedDetails") {
+      list.bookedDetails = value;
+    } else if (key === "paymentDetails") {
+      list.paymentDetails = value;
+    }
+
+    this.setState(
+      {
+        ...list,
+      },
+      () =>
+        window.localStorage.setItem("confirmation", JSON.stringify(this.state))
+    );
+  };
+
   render() {
     return (
       <RoomContext.Provider
@@ -111,6 +143,7 @@ class RoomProvider extends Component {
           ...this.state,
           getRoom: this.getRoom,
           handleChange: this.handleChange,
+          changeContextState: this.changeContextState,
         }}
       >
         {this.props.children}

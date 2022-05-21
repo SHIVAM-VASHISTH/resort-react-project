@@ -33,14 +33,27 @@ class Booking extends Component {
       price: "",
       capacity: "",
       name: "",
+      loading: false,
     };
   }
 
   static contextType = RoomContext;
 
   sendEmail = (room) => {
-    window.location.href = `../${this.state.slug}/confirmation`; // To be moved;
-    return; //To be removed;
+    const { changeContextState } = this.context;
+
+    const price =
+      Math.ceil(
+        (new Date(this.state.endDate) - new Date(this.state.startDate)) /
+          (1000 * 60 * 60 * 24)
+      ) === 0
+        ? room.price
+        : Math.ceil(
+            (new Date(this.state.endDate) - new Date(this.state.startDate)) /
+              (1000 * 60 * 60 * 24)
+          ) * room.price;
+
+    const bookingId = `PR${Math.floor(Math.random() * 90000) + 10000}`;
 
     emailjs
       .send(
@@ -48,25 +61,13 @@ class Booking extends Component {
         "template_c1lc8q7",
         {
           to_name: this.props.auth0.user.name,
-          booking_id: `PR${Math.floor(Math.random() * 90000) + 10000}`,
+          booking_id: bookingId,
           room_type: room.name,
           no_of_guests: room.capacity,
           start_date: this.state.startDate,
           end_date: this.state.endDate,
           payment_mode: this.state.paidOnline ? "Paid Online" : "Pay at Hotel",
-          price:
-            Math.ceil(
-              (new Date(this.state.endDate) - new Date(this.state.startDate)) /
-                (1000 * 60 * 60 * 24)
-            ) === 0
-              ? `₹${room.price}`
-              : `₹${
-                  Math.ceil(
-                    (new Date(this.state.endDate) -
-                      new Date(this.state.startDate)) /
-                      (1000 * 60 * 60 * 24)
-                  ) * room.price
-                }`,
+          price: price,
           to: this.props.auth0.user.email,
         },
         "dKLaTJMgx4aapY2xe"
@@ -74,6 +75,28 @@ class Booking extends Component {
       .then(
         (result) => {
           console.log(result.text);
+
+          changeContextState("bookedDetails", {
+            bookingId: bookingId,
+            checkIn: this.state.startDate,
+            checkOut: this.state.endDate,
+            total: price,
+            bookingStatus: "Confirmed",
+          });
+
+          changeContextState("paymentDetails", {
+            paymentId: this.state.paidOnline
+              ? `${Math.floor(Math.random() * 90000) + 10000}`
+              : "Pay at Hotel",
+            date: new Date().toLocaleDateString(),
+            paymentMethod: this.state.paidOnline
+              ? `Paid Online`
+              : "Pay at Hotel",
+            total: price,
+            paymentStatus: "Successfull",
+          });
+
+          window.location.href = `../${this.state.slug}/confirmation`;
         },
         (error) => {
           console.log(error.text);
@@ -165,21 +188,27 @@ class Booking extends Component {
           <article className="info">
             {this.state.bookingConfirm && (
               <div>
-                <button
-                  className="btn-primary"
-                  style={{
-                    width: "40%",
-                    float: "right",
-                    marginRight: "175px",
-                  }}
-                  onClick={() => {
-                    this.setState({ paidOnline: false });
-                    this.sendEmail(room);
-                  }}
-                >
-                  Pay at Hotel
-                </button>
-
+                {this.state.loading ? (
+                  <img
+                    width={"35"}
+                    src="https://c.tenor.com/I6kN-6X7nhAAAAAj/loading-buffering.gif"
+                  />
+                ) : (
+                  <button
+                    className="btn-primary"
+                    style={{
+                      width: "40%",
+                      float: "right",
+                      marginRight: "175px",
+                    }}
+                    onClick={() => {
+                      this.setState({ paidOnline: false, loading: true });
+                      this.sendEmail(room);
+                    }}
+                  >
+                    Pay at Hotel
+                  </button>
+                )}
                 <PaytmButton price={price} />
                 <img
                   style={{ width: "75%" }}

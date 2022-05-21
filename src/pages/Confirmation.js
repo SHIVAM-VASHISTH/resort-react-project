@@ -6,41 +6,18 @@ import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 class Confirmation extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props);
 
-    this.state = {
-      slug: this.props.match.params.slug,
-    };
+    this.state = {};
+  }
+
+  componentDidMount() {
+    localStorage.removeItem("confirmation");
   }
 
   static contextType = RoomContext;
 
   render() {
-    const { getRoom } = this.context;
-    const room = getRoom(this.state.slug);
-
-    if (!room) {
-      return (
-        <div className="error">
-          <h3>no such room could be found...</h3>
-          <Link to="/rooms" className="btn-primary">
-            back to rooms
-          </Link>
-        </div>
-      );
-    }
-
-    const {
-      name,
-      description,
-      capacity,
-      size,
-      price,
-      extras,
-      breakfast,
-      pets,
-      images,
-    } = room;
+    const { bookedDetails, paymentDetails } = this.context;
 
     return (
       <>
@@ -56,23 +33,23 @@ class Confirmation extends Component {
           <div className="row m-3 mb-5">
             <div className="col border-end">
               <p>Booking ID</p>
-              <h6>PD435970</h6>
+              <h6>{bookedDetails.bookingId}</h6>
             </div>
             <div className="col border-end">
               <p>Check-in</p>
-              <h6>September 19, 2019</h6>
+              <h6>{bookedDetails.checkIn}</h6>
             </div>
             <div className="col border-end">
               <p>Check-out</p>
-              <h6>September 20, 2019</h6>
+              <h6>{bookedDetails.checkOut}</h6>
             </div>
             <div className="col border-end">
               <p>Total</p>
-              <h6>₹1999</h6>
+              <h6>{`₹${bookedDetails.total}`}</h6>
             </div>
             <div className="col border-end">
               <p>Status</p>
-              <h6>Confirmed</h6>
+              <h6>{bookedDetails.bookingStatus}</h6>
             </div>
           </div>
 
@@ -84,23 +61,23 @@ class Confirmation extends Component {
           <div className="row m-3">
             <div className="col border-end">
               <p>Payment ID</p>
-              <h6>432434345</h6>
+              <h6>{paymentDetails.paymentId}</h6>
             </div>
             <div className="col border-end">
               <p>Date</p>
-              <h6>September 19, 2019</h6>
+              <h6>{paymentDetails.date}</h6>
             </div>
             <div className="col border-end">
               <p>Payment Method</p>
-              <h6>Paytm</h6>
+              <h6>{paymentDetails.paymentMethod}</h6>
             </div>
             <div className="col border-end">
               <p>Total</p>
-              <h6>₹1999</h6>
+              <h6>{`₹${paymentDetails.total}`}</h6>
             </div>
             <div className="col border-end">
               <p>Status</p>
-              <h6>Completed</h6>
+              <h6>{paymentDetails.paymentStatus}</h6>
             </div>
           </div>
 
