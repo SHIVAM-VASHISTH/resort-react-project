@@ -6,8 +6,17 @@ import { Link } from "react-router-dom";
 import { RoomContext } from "../context";
 import StyledHero from "../components/StyledHero";
 import emailjs from "@emailjs/browser";
+import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import PaytmButton from "../paytm-button/paytmButton";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main style file
+import "react-date-range/dist/theme/default.css"; // them
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import cards from "../images/card1.jpg";
+import paytm from "../images/paytm.jpg";
 
-export default class Booking extends Component {
+class Booking extends Component {
   constructor(props) {
     super(props);
     console.log(this.props);
@@ -15,18 +24,52 @@ export default class Booking extends Component {
     this.state = {
       slug: this.props.match.params.slug,
       defaultBcg,
+      bookingConfirm: false,
+      date: [{ startDate: new Date(), endDate: new Date(), key: "selection" }],
+      time: null,
+      startDate: null,
+      endDate: null,
+      paidOnline: false,
+      price: "",
+      capacity: "",
+      name: "",
     };
   }
 
   static contextType = RoomContext;
 
-  sendEmail = () => {
+  sendEmail = (room) => {
+    window.location.href = `../${this.state.slug}/confirmation`; // To be moved;
+    return; //To be removed;
+
     emailjs
       .send(
-        "service_5y0g3ji",
-        "template_mxr8syu",
-        { name: "Shivam", notes: "Check this out!" },
-        "ELVxweHuJFTHPEJLP"
+        "service_q7wu2qq",
+        "template_c1lc8q7",
+        {
+          to_name: this.props.auth0.user.name,
+          booking_id: `PR${Math.floor(Math.random() * 90000) + 10000}`,
+          room_type: room.name,
+          no_of_guests: room.capacity,
+          start_date: this.state.startDate,
+          end_date: this.state.endDate,
+          payment_mode: this.state.paidOnline ? "Paid Online" : "Pay at Hotel",
+          price:
+            Math.ceil(
+              (new Date(this.state.endDate) - new Date(this.state.startDate)) /
+                (1000 * 60 * 60 * 24)
+            ) === 0
+              ? `₹${room.price}`
+              : `₹${
+                  Math.ceil(
+                    (new Date(this.state.endDate) -
+                      new Date(this.state.startDate)) /
+                      (1000 * 60 * 60 * 24)
+                  ) * room.price
+                }`,
+          to: this.props.auth0.user.email,
+        },
+        "dKLaTJMgx4aapY2xe"
       )
       .then(
         (result) => {
@@ -68,14 +111,91 @@ export default class Booking extends Component {
     return (
       <>
         <div className="single-room-info">
-          <Link
-            to={`/rooms/${this.state.slug}/book`}
-            className="btn-primary"
-            style={{ width: "50%" }}
-            onClick={this.sendEmail}
-          >
-            Confirm Booking
-          </Link>
+          <article className="desc">
+            {!this.state.bookingConfirm && (
+              <button
+                className="btn-primary"
+                style={{ width: "40%" }}
+                onClick={() => {
+                  this.setState({ bookingConfirm: true });
+                }}
+              >
+                Confirm Booking
+              </button>
+            )}
+            {this.state.bookingConfirm && (
+              <div>
+                <div className="row mb-4" style={{ textAlign: "center" }}>
+                  <label>Please Enter Checkin & Checkout</label>
+                </div>
+                <div className="row">
+                  <div className="col">
+                    <DateRange
+                      editableDateInputs={true}
+                      onChange={(item) => {
+                        this.setState({
+                          date: [item.selection],
+                          startDate:
+                            item.selection.startDate.toLocaleDateString(),
+                          endDate: item.selection.endDate.toLocaleDateString(),
+                        });
+                      }}
+                      moveRangeOnFirstSelection={false}
+                      ranges={this.state.date}
+                    />
+                  </div>
+                  <div className="col">
+                    <Datetime
+                      dateFormat={false}
+                      timeFormat="HH A"
+                      timeConstraints={{ hours: { min: 1, max: 12, step: 1 } }}
+                      onChange={(item) =>
+                        this.setState({
+                          time: item._d
+                            .toLocaleTimeString()
+                            .replace(/(.*)\D\d+/, "$1"),
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </article>
+          <article className="info">
+            {this.state.bookingConfirm && (
+              <div>
+                <button
+                  className="btn-primary"
+                  style={{
+                    width: "40%",
+                    float: "right",
+                    marginRight: "175px",
+                  }}
+                  onClick={() => {
+                    this.setState({ paidOnline: false });
+                    this.sendEmail(room);
+                  }}
+                >
+                  Pay at Hotel
+                </button>
+
+                <PaytmButton price={price} />
+                <img
+                  style={{ width: "75%" }}
+                  className="mt-4"
+                  src={cards}
+                  alt="Beach Resort"
+                />
+                <img
+                  style={{ width: "30%" }}
+                  className="mt-4"
+                  src={paytm}
+                  alt="Beach Resort"
+                />
+              </div>
+            )}
+          </article>
         </div>
 
         <div className="single-room-info">
@@ -88,7 +208,7 @@ export default class Booking extends Component {
             <h6>price: ₹{price}</h6>
             <h6>size: {size} SQFT</h6>
             <h6>
-              max capacity:{" "}
+              max capacity:
               {capacity > 1 ? `${capacity} people` : `${capacity} person`}
             </h6>
             <h6>{pets ? "pets allowed" : "no pets allowed"}</h6>
@@ -108,3 +228,5 @@ export default class Booking extends Component {
     );
   }
 }
+
+export default withAuth0(Booking);

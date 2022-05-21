@@ -5,8 +5,9 @@ import Banner from "../components/Banner";
 import { Link } from "react-router-dom";
 import { RoomContext } from "../context";
 import StyledHero from "../components/StyledHero";
+import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
-export default class SingleRoom extends Component {
+class SingleRoom extends Component {
   constructor(props) {
     super(props);
     console.log(this.props);
@@ -20,6 +21,8 @@ export default class SingleRoom extends Component {
   static contextType = RoomContext;
 
   render() {
+    const { user, isAuthenticated, logout } = this.props.auth0;
+
     const { getRoom } = this.context;
     const room = getRoom(this.state.slug);
 
@@ -81,22 +84,34 @@ export default class SingleRoom extends Component {
             </article>
           </div>
         </section>
-        <section className="room-extras">
+        <section className="room-extras mt-4">
           <h6>extras</h6>
           <ul className="extras">
             {extras.map((item, index) => {
               return <li key={index}>- {item}</li>;
             })}
           </ul>
-          <Link
-            style={{ float: "right" }}
-            to={`/rooms/${this.state.slug}/book`}
-            className="btn-primary"
-          >
-            Book this Room
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              style={{ marginTop: "40px" }}
+              to={`/rooms/${this.state.slug}/book`}
+              className="btn-primary"
+            >
+              Book this Room
+            </Link>
+          ) : (
+            <Link
+              style={{ marginTop: "40px" }}
+              onClick={this.props.auth0.loginWithRedirect}
+              className="btn-primary"
+            >
+              Login to Book this Room
+            </Link>
+          )}
         </section>
       </>
     );
   }
 }
+
+export default withAuth0(SingleRoom);

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import logo from "../images/logo.svg";
+import logo from "../images/logo.png";
 import { FaAlignRight, FaUserPlus, FaUserMinus } from "react-icons/fa";
+import { AiFillHome } from "react-icons/ai";
+import { MdRoomService } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { withAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -23,7 +25,7 @@ class Navbar extends Component {
           <div className="nav-center">
             <div className="nav-header">
               <Link to="/">
-                <img src={logo} alt="Beach Resort" />
+                <img style={{ width: "60%" }} src={logo} alt="Beach Resort" />
               </Link>
               <button
                 type="button"
@@ -37,10 +39,14 @@ class Navbar extends Component {
               className={this.state.isOpen ? "nav-links show-nav" : "nav-links"}
             >
               <li>
-                <Link to="/">Home</Link>
+                <Link to="/">
+                  Home <AiFillHome size={18} />
+                </Link>
               </li>
               <li>
-                <Link to="/rooms">Rooms</Link>
+                <Link to="/rooms">
+                  Rooms <MdRoomService size={20} />
+                </Link>
               </li>
               <li>
                 {user ? (

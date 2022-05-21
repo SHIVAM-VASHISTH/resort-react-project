@@ -6,6 +6,7 @@ import Rooms from "./pages/Rooms";
 import SingleRoom from "./pages/SingleRoom";
 import Error from "./pages/Error";
 import Booking from "./pages/Booking";
+import Confirmation from "./pages/Confirmation";
 
 import Navbar from "./components/Navbar";
 
@@ -20,6 +21,11 @@ function App() {
         <Route exact path="/rooms/" component={Rooms} />
         <Route exact path="/rooms/:slug" component={SingleRoom} />
         <Route exact path="/rooms/:slug/book" component={Booking} />
+        <Route
+          exact
+          path="/rooms/:slug/confirmation"
+          component={Confirmation}
+        />
         <Route component={Error} />
       </Switch>
     </>
