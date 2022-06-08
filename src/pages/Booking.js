@@ -153,7 +153,7 @@ class Booking extends Component {
                 </div>
                 <div className="row">
                   <div className="col">
-                    <DateRange
+                  <DateRange
                       editableDateInputs={true}
                       onChange={(item) => {
                         this.setState({
