@@ -128,6 +128,7 @@ export default class PaytmButton extends Component {
       merchant: {
         mid: that.state.mid,
         redirect: false,
+        name: "Paradise Resort Pvt Ltd"
       },
       handler: {
         transactionStatus: function transactionStatus(paymentStatus) {
